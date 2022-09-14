@@ -1,0 +1,24 @@
+# ---- Requirements ----
+# PowerShell
+# whois64.exe from Microsoft SysInternals
+
+
+# ---- Run ----
+# Save list of domain names as "payload.csv" in [FOLDER]\
+# Navigate PowerShell console to .\whois64.exe's folder before running, e.g., PS > cd "C:\Program Files"
+# Replace all instances of [FOLDER] in script with the location you wish to use
+
+
+# Read list from file, lookup each, output to .txt with date
+PS >
+foreach ($domain in cat "[FOLDER]\payload.csv") {
+    if (-not (Test-Path -Path ("[FOLDER]\whois results" + "\$domain.txt") -PathType Leaf)) {
+        if (Resolve-DnsName -Name "$domain" -Type "UNKNOWN" -ErrorAction 'SilentlyContinue') { $dns = "DNS Response for $domain`: YES" } else { $dns = "DNS Response for $domain`: NO" }
+		(Get-Date), "`n",
+		"---- DNS QUERY ----",
+		$dns, "`n",
+		"---- WHOIS QUERY ----",
+        (.\whois64.exe -v $domain) |
+        Out-File -FilePath "[FOLDER]\whois results\$domain.txt"
+    }
+}
